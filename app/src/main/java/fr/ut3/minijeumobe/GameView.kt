@@ -1,15 +1,17 @@
 package fr.ut3.minijeumobe
 
+import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 
-class GameView(mainActivity: MainActivity) : SurfaceView(mainActivity), SurfaceHolder.Callback {
+class GameView(val mainActivity: MainActivity) : SurfaceView(mainActivity), SurfaceHolder.Callback {
 
     private val thread : GameThread
     private var x = 0
+    private val sharedPref = mainActivity.getPreferences(Context.MODE_PRIVATE)
 
     init {
         holder.addCallback(this)
@@ -39,11 +41,13 @@ class GameView(mainActivity: MainActivity) : SurfaceView(mainActivity), SurfaceH
     }
 
     override fun draw(canvas: Canvas) {
+        var valeur_y = sharedPref.getInt("valeur_y", 0)
+
         super.draw(canvas)
         canvas.drawColor(Color.WHITE)
         val paint = Paint()
         paint.color = Color.rgb(250, 0, 0)
-        canvas.drawRect(x+0F, 100F, x+100F, 200F, paint)
+        canvas.drawRect(x+0F, (valeur_y*100F), x+100F, (valeur_y*100F)+200F, paint)
     }
 
     fun update() {
