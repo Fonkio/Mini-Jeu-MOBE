@@ -9,6 +9,7 @@ import android.view.SurfaceView
 class GameView(mainActivity: MainActivity) : SurfaceView(mainActivity), SurfaceHolder.Callback {
 
     private val thread : GameThread
+    private var x = 0
 
     init {
         holder.addCallback(this)
@@ -42,10 +43,11 @@ class GameView(mainActivity: MainActivity) : SurfaceView(mainActivity), SurfaceH
         canvas.drawColor(Color.WHITE)
         val paint = Paint()
         paint.color = Color.rgb(250, 0, 0)
-        canvas.drawRect(100F, 100F, 200F, 200F, paint)
+        canvas.drawRect(x+0F, 100F, x+100F, 200F, paint)
     }
 
     fun update() {
+        x = (x + 1) % 300
     }
 
 }
