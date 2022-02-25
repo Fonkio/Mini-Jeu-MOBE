@@ -4,24 +4,32 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.RectF
+import android.os.Handler
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 
-class GameView(val mainActivity: MainActivity) : SurfaceView(mainActivity), SurfaceHolder.Callback {
+class GameView(mainActivity: MainActivity) : SurfaceView(mainActivity), SurfaceHolder.Callback {
 
-    private val thread : GameThread
-    private var x = 0
-    private val sharedPref = mainActivity.getPreferences(Context.MODE_PRIVATE)
+    private var gameDrawThread : GameDrawThread
+    private var gameThread : GameThread
+    private var gameAddRectThread : GameAddRectThread
+    val sharedPref = mainActivity.getPreferences(Context.MODE_PRIVATE)
+    val mHandler = Handler()
+    val listRect = mutableListOf<RectF>()
 
     init {
         holder.addCallback(this)
-        thread = GameThread(holder, this)
+        gameDrawThread = GameDrawThread(holder, this)
+        gameThread = GameThread(holder, this)
+        gameAddRectThread = GameAddRectThread(holder, this)
         isFocusable = true
     }
 
     override fun surfaceCreated(holder: SurfaceHolder) {
-        thread.running = true
-        thread.start()
+        mHandler.postDelayed(gameDrawThread, 0)
+        mHandler.postDelayed(gameThread, 0)
+        mHandler.postDelayed(gameAddRectThread, 0)
     }
 
     override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
@@ -31,8 +39,9 @@ class GameView(val mainActivity: MainActivity) : SurfaceView(mainActivity), Surf
         var retry = true
         while (retry) {
             try {
-                thread.running = false
-                thread.join()
+                gameDrawThread.join()
+                gameThread.join()
+                gameAddRectThread.join()
             } catch (e : InterruptedException) {
                 e.printStackTrace()
             }
@@ -41,17 +50,22 @@ class GameView(val mainActivity: MainActivity) : SurfaceView(mainActivity), Surf
     }
 
     override fun draw(canvas: Canvas) {
-        var valeur_y = sharedPref.getInt("valeur_y", 0)
-
         super.draw(canvas)
         canvas.drawColor(Color.WHITE)
         val paint = Paint()
         paint.color = Color.rgb(250, 0, 0)
-        canvas.drawRect(x+0F, (valeur_y*100F), x+100F, (valeur_y*100F)+200F, paint)
+        for (rect in listRect) {
+            canvas.drawRect(rect, paint)
+        }
     }
 
     fun update() {
-        x = (x + 1) % 300
+        for (rect in listRect) {
+            var x = rect.left
+            x = (x + 1) % this.width
+            rect.left = x + 0F
+            rect.right = x+100F
+        }
     }
 
 }

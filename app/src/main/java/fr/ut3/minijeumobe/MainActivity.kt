@@ -14,12 +14,13 @@ class MainActivity : Activity() {
             WindowManager.LayoutParams.FLAG_FULLSCREEN,
             WindowManager.LayoutParams.FLAG_FULLSCREEN);
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setContentView(GameView(this))
+        val gameView = GameView(this)
+        setContentView(gameView)
 
         val sharedPref = getPreferences(Context.MODE_PRIVATE)
 
         var valeur_y = sharedPref.getInt("valeur_y", 0)
-        valeur_y = (valeur_y+1) % 4
+        valeur_y = valeur_y+1
 
         val editor = sharedPref.edit()
         editor.putInt("valeur_y", valeur_y)
